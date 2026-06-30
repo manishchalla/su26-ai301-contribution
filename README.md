@@ -1,222 +1,495 @@
 # AI301 Contribution README
+
 **Student:** Manish Challa  
-**GitHub:** [@manishchalla](https://github.com/manishchalla)  
+**GitHub:** @manishchalla  
 **Course:** AI301 — AI Open Source Capstone, Summer 2026  
-**Status:** Phase II Complete
+**Status:** Contribution #1 Merged
 
 ---
 
-## Contribution #1
+# Contribution #1
 
-**Issue:** [furpocalypse/APIS #53 — Clean up CSP](https://github.com/furpocalypse/APIS/issues/53)
+**Repository:** https://github.com/almanac-data/environment-almanac
 
----
+**Issue:** #1 – Dataset: EPA AirData (Outdoor Air Quality)
 
-## Phase I — Issue Selection
+**Pull Request:** Add EPA AirData catalog entry
 
-### Why I Chose This Issue
-The APIS project has Content Security Policy (CSP) violations being logged 
-in the developer console. The fix involves migrating from a third-party `csp` 
-module to Django's built-in CSP functionality, adding missing domains and 
-nonces, and cleaning up inline scripts and styles in templates. I chose this 
-issue because it is a well-scoped Python/Django bug with a clear 4-step task 
-list, tagged `good first issue` with `status:ready` confirmed by the 
-maintainer. It aligns with my Python and web development skills and has a 
-clear definition of done.
-
-### Issue Summary
-The APIS Django project currently uses a third-party `csp` module that is 
-producing CSP violations in the developer console. These violations come from 
-PayPal scripts on unexpected domains, inline script and style tags, and style 
-attributes baked into templates. None of this breaks functionality currently 
-since it runs in report-only mode, but it needs to be cleaned up by migrating 
-to Django's built-in CSP support and properly configuring nonces and allowed 
-domains.
-
-### Links
-- **Issue:** https://github.com/furpocalypse/APIS/issues/53  
-- **My Fork:** https://github.com/manishchalla/APIS  
+**Status:** ✅ Merged
 
 ---
 
-## Phase II — Reproduce & Plan
+# Phase I — Issue Selection
 
-### Understanding the Issue
+## Why I Chose This Issue
 
-**Problem Description:**  
-The APIS project uses the third-party `django-csp~=4.0` package for Content 
-Security Policy management. The browser console logs multiple CSP violations 
-because several external domains are missing from the allowlist (Sentry CDN, 
-Google Fonts), inline scripts in templates lack nonces, and inline `style=` 
-attributes exist in templates. Django 6.0 has built-in CSP support making 
-the third-party package redundant. The settings.py already partially uses 
-Django 6.0's CSP format (`CONTENT_SECURITY_POLICY_REPORT_ONLY`) suggesting 
-a migration was started but never completed.
+I selected this issue because it was a well-scoped beginner-friendly open source contribution that required understanding an existing project instead of simply writing code. The issue involved adding a new public environmental dataset into the project's catalog while following the repository schema, contribution guidelines, validation process, and CI workflow.
 
-**Expected Behavior:**  
-No CSP violations in the browser developer console. All scripts, styles, 
-and fonts load correctly with proper nonces or allowlisted domains.
-
-**Current Behavior:**  
-The following CSP violations appear in the browser console on 
-`http://localhost:8000/registration/`:
-- `browser.sentry-cdn.com` blocked — not in `script-src` allowlist
-- Inline scripts blocked — need nonces added to templates
-- `fonts.googleapis.com` blocked — not in `style-src` allowlist
-- Inline `style=` attributes blocked in multiple templates
-
-**Affected Components:**  
-- `fm_eventmanager/settings.py` — CSP configuration and allowlists
-- `pyproject.toml` — dependency list (`django-csp~=4.0`)
-- `templates/allauth/elements/img.html` — inline style attribute
-- `templates/admin/registration/order/change_form.html` — inline styles
+This contribution aligns well with my background in Data Engineering because it involves metadata management, schema validation, public datasets, reproducibility, and GitHub collaboration.
 
 ---
 
-### Reproduction Process
+## Issue Summary
 
-**Environment Setup:**  
-Used Docker Compose on WSL2 (Windows 11). Setup was straightforward 
-following the README instructions:
-```bash
-git clone https://github.com/manishchalla/APIS.git
-cd APIS
-cp database.env.example database.env
-docker compose up -d
-docker compose exec app /app/manage.py bootstrap_admin
+The project maintains a catalog of publicly available environmental datasets.
+
+This issue requested adding the **EPA AirData** dataset into the catalog by creating a new YAML catalog entry.
+
+The required work included:
+
+- Creating a new YAML file
+- Filling every required metadata field
+- Verifying the official EPA source
+- Running validation
+- Rebuilding the generated catalog
+- Opening a Pull Request
+
+---
+
+## Repository Links
+
+Repository
+
+https://github.com/almanac-data/environment-almanac
+
+Issue
+
+https://github.com/almanac-data/environment-almanac/issues/1
+
+Fork
+
+https://github.com/manishchalla/environment-almanac
+
+---
+
+# Phase II — Understanding the Issue
+
+## Problem Description
+
+The repository catalogs public datasets instead of hosting them.
+
+Each dataset is represented by one YAML file under
+
 ```
-Stack was fully running within ~3 minutes after the initial build 
-(~172 seconds for first build). No setup issues encountered.
+catalog/
+```
 
-**Working Branch:**  
-https://github.com/manishchalla/APIS/tree/fix-issue-53-clean-up-csp
+The issue requested creating
 
-**Steps to Reproduce:**  
-1. Clone the repo and run `docker compose up -d`
-2. Run `docker compose exec app /app/manage.py bootstrap_admin`
-3. Open `http://localhost:8000/registration/` in your browser
-4. Press **F12** to open Developer Tools and click the **Console** tab
-5. Observe the following CSP violation errors logged in the console:
-   - `Loading the script 'https://browser.sentry-cdn.com/...' 
-     violates CSP directive script-src`
-   - `Executing inline script violates CSP directive script-src`
-   - `Loading the stylesheet 'https://fonts.googleapis.com/...' 
-     violates CSP directive style-src`
+```
+catalog/epa-airdata.yaml
+```
 
-**Reproduction Evidence:**  
-- Branch: https://github.com/manishchalla/APIS/tree/fix-issue-53-clean-up-csp
-- CSP violations confirmed in browser console on 
-  `http://localhost:8000/registration/`
-- Violations are in report-only mode so nothing is broken but 
-  violations are clearly logged
-- Found inline styles in:
-  - `templates/allauth/elements/img.html` line 2
-  - `templates/admin/registration/order/change_form.html` lines 40, 55, 66
+following the existing schema.
 
 ---
 
-### Solution Approach
+## Expected Result
 
-**Analysis:**  
-The root cause is threefold:
-1. `django-csp~=4.0` is still listed as a dependency but `settings.py` 
-   already uses Django 6.0's built-in `CONTENT_SECURITY_POLICY_REPORT_ONLY` 
-   format — indicating a partial migration that was never completed
-2. The `script-src` allowlist is missing `https://browser.sentry-cdn.com`
-3. The `style-src` allowlist is missing `https://fonts.googleapis.com`
-4. Templates have inline `<script>` tags and `style=` attributes that 
-   need nonces or CSS class replacements
+After completing the issue,
 
-**Proposed Solution:**  
-Two possible approaches — awaiting maintainer confirmation on which to use:
-
-- **Option A (Quick fix):** Keep `django-csp`, add missing domains to 
-  allowlist, add nonces to inline scripts using `{% csp_nonce %}`
-- **Option B (Full migration):** Remove `django-csp` entirely, complete 
-  the migration to Django 6.0's built-in CSP, add missing domains and nonces
-
-**Implementation Plan (UMPIRE):**
-
-**Understand:**  
-CSP violations occur because the allowlist is incomplete and inline 
-scripts/styles in templates lack nonces. The project is mid-migration 
-between `django-csp` and Django 6.0's built-in CSP.
-
-**Match:**  
-Django 6.0 docs show `CONTENT_SECURITY_POLICY` dict replaces `django-csp`. 
-The existing `CONTENT_SECURITY_POLICY_REPORT_ONLY` dict in `settings.py` 
-already uses this exact format — just needs the old package removed and 
-missing domains added.
-
-**Plan:**  
-1. Remove `django-csp~=4.0` from `pyproject.toml`
-2. Remove `"csp"` from `INSTALLED_APPS` in `settings.py`
-3. Remove `"csp.middleware.CSPMiddleware"` from `MIDDLEWARE` in `settings.py`
-4. Add `https://browser.sentry-cdn.com` to `script-src` in `settings.py`
-5. Add `https://fonts.googleapis.com` to `style-src` in `settings.py`
-6. Add nonces to inline `<script>` tags in templates
-7. Replace inline `style=` attributes in templates with CSS classes
-
-**Implement:**  
-https://github.com/manishchalla/APIS/tree/fix-issue-53-clean-up-csp  
-*(code changes coming in Phase III)*
-
-**Review:**  
-Will check `CONTRIBUTING.md` and follow the project's commit message 
-conventions before opening PR. Will run `make test-django` to confirm 
-no regressions.
-
-**Evaluate:**  
-After the fix, opening `http://localhost:8000/registration/` in the 
-browser console should show zero CSP violations. Will run 
-`make test-django` to confirm all 450+ existing tests still pass.
+- EPA AirData should appear in the catalog
+- Validation should succeed
+- catalog.json should be regenerated
+- CI should pass
+- Pull Request should be mergeable
 
 ---
 
-## Phase III — Testing & Implementation
-*(Coming in Week 3)*
+## Existing State
 
-### Testing Strategy
-**Unit Tests:**  
-- Test case 1: [Description]  
-- Test case 2: [Description]  
+Before my contribution,
 
-**Manual Testing:**  
-[What you tested manually and results]
-
-### Implementation Notes
-**Week 2 Progress:**  
-[What you built, challenges faced, decisions made]
-
-**Code Changes:**  
-- Files modified: [List]  
-- Key commits: [Links]  
-- Approach decisions: [Why you chose certain approaches]  
+EPA AirData did not exist inside the catalog.
 
 ---
 
-## Phase IV — Pull Request
-*(Coming in Week 4)*
+## Files Affected
 
-**PR Link:** [GitHub PR URL when submitted]  
-
-**PR Description:**  
-[Draft or final PR description]
-
-**Maintainer Feedback:**  
-- [Date]: [Summary of feedback received]  
-- [Date]: [How you addressed it]  
+```
+catalog/epa-airdata.yaml
+catalog.json
+```
 
 ---
 
-## Learnings & Reflections
-*(To be completed at end of program)*
+# Environment Setup
 
-**Technical Skills Gained:**  
-[What you learned technically]
+Operating System
 
-**Challenges Overcome:**  
-[What was hard and how you solved it]
+- Windows 11
+- WSL2 (Ubuntu)
 
-**What I'd Do Differently Next Time:**  
-[Reflection on your process]
+Repository Setup
+
+```bash
+git clone https://github.com/manishchalla/environment-almanac.git
+
+cd environment-almanac
+
+git checkout -b add-epa-airdata
+```
+
+---
+
+# Understanding the Repository
+
+Before making any changes I reviewed:
+
+```
+CONTRIBUTING.md
+```
+
+to understand the contribution workflow.
+
+I also reviewed
+
+```
+schema/catalog-entry.schema.json
+```
+
+to understand
+
+- required fields
+- field descriptions
+- validation rules
+
+This prevented guessing values and ensured every field followed the repository schema.
+
+---
+
+# Solution Planning
+
+Instead of creating a YAML file from scratch,
+
+I copied an existing EPA catalog entry
+
+```
+catalog/epa-aqs.yaml
+```
+
+because it followed the same schema and represented a similar air-quality dataset.
+
+I then replaced every dataset-specific field with verified EPA AirData information.
+
+Nothing was copied without verification.
+
+Every field was checked against
+
+https://www.epa.gov/outdoor-air-quality-data
+
+---
+
+# Implementation
+
+Created
+
+```
+catalog/epa-airdata.yaml
+```
+
+Final metadata
+
+```yaml
+id: epa-airdata
+title: EPA AirData
+description: EPA AirData provides access to recent and historical outdoor air quality data collected at monitoring stations across the United States, including downloadable datasets, AQI reports, and monitor information.
+publisher: U.S. Environmental Protection Agency (EPA)
+
+topics:
+- air-quality
+- pollutants
+- monitoring
+- aqi
+
+source:
+  canonical_url: https://www.epa.gov/outdoor-air-quality-data
+  predecessor_url: null
+  doi: null
+
+access:
+  method:
+  - web
+  - api
+  - bulk
+  auth_required: false
+  auth_note: API requires a free key obtained by email registration; bulk pre-generated files are publicly available.
+  rate_limit: null
+
+format:
+- csv
+- json
+
+coverage:
+  spatial: United States
+  temporal: 1980-present
+  cadence: daily
+
+license: public-domain (US Gov work)
+
+attribution: U.S. Environmental Protection Agency, AirData
+
+archive:
+  wayback_url: null
+  cloud_mirror: null
+  mirror: null
+
+status: live
+
+last_checked: '2026-06-30'
+
+checksum: null
+
+notes: null
+```
+
+---
+
+# Verification Process
+
+Every field was verified before modification.
+
+Examples
+
+### id
+
+Verified using repository rules.
+
+The filename
+
+```
+catalog/epa-airdata.yaml
+```
+
+must match
+
+```
+id: epa-airdata
+```
+
+---
+
+### title
+
+Verified from the official EPA page.
+
+Official page heading
+
+```
+AirData: Air Quality Data Collected at Outdoor Monitors Across the US
+```
+
+Dataset name
+
+```
+EPA AirData
+```
+
+---
+
+### description
+
+Written from the official EPA documentation instead of copying another dataset.
+
+---
+
+### source
+
+Verified against
+
+https://www.epa.gov/outdoor-air-quality-data
+
+---
+
+### coverage
+
+Verified by downloading the historical data.
+
+The downloaded dataset contained records beginning in
+
+```
+1980
+```
+
+therefore
+
+```
+temporal: 1980-present
+```
+
+was retained.
+
+---
+
+### access
+
+Verified using EPA API documentation.
+
+Confirmed
+
+- Web access
+- API access
+- Bulk downloads
+
+The repository convention used
+
+```
+auth_required: false
+```
+
+for free API registration.
+
+---
+
+# Validation
+
+Schema Validation
+
+```bash
+python3 scripts/validate.py
+```
+
+Output
+
+```
+OK — 8 entries valid
+```
+
+---
+
+Catalog Generation
+
+```bash
+python3 scripts/build_index.py
+```
+
+Output
+
+```
+wrote catalog.json — 8 entries ({'live': 8})
+```
+
+---
+
+Test Suite
+
+```bash
+python3 -m pytest
+```
+
+Output
+
+```
+7 passed
+```
+
+---
+
+# Git Workflow
+
+Created feature branch
+
+```bash
+git checkout -b add-epa-airdata
+```
+
+Staged files
+
+```bash
+git add catalog/epa-airdata.yaml catalog.json
+```
+
+Commit
+
+```bash
+git commit -m "Add EPA AirData catalog entry"
+```
+
+Push
+
+```bash
+git push -u origin add-epa-airdata
+```
+
+---
+
+# Pull Request
+
+PR Title
+
+```
+Add EPA AirData catalog entry
+```
+
+PR Description
+
+```
+Summary
+
+Adds a new catalog entry for EPA AirData.
+
+Changes
+
+- Added catalog/epa-airdata.yaml
+- Verified the canonical source URL
+- Added dataset metadata following the catalog schema
+- Regenerated catalog.json
+
+Validation
+
+- python3 scripts/validate.py
+- python3 scripts/build_index.py
+- pytest
+
+Closes #1
+```
+
+---
+
+# Maintainer Review
+
+The maintainer reviewed the contribution and approved it.
+
+Review comment
+
+> Approved — clean first catalog contribution. EPA AirData URL verified, schema-valid, distinct from the existing AirNow entry (AirData = historical/bulk vs AirNow = real-time AQI), and catalog.json was correctly regenerated. CI green.
+
+The Pull Request was merged into the main branch.
+
+---
+
+# Outcome
+
+Successfully merged into
+
+```
+almanac-data/environment-almanac
+```
+
+Contribution completed successfully.
+
+---
+
+# Technical Skills Demonstrated
+
+- Reading project documentation
+- Understanding JSON Schema
+- YAML authoring
+- Metadata curation
+- Source verification
+- Git workflow
+- Branch management
+- Pull Requests
+- Repository validation
+- Running automated tests
+- Open source collaboration
+
+---
+
+# Lessons Learned
+
+This contribution taught me that successful open source contributions require understanding the repository conventions before making changes.
+
+Rather than assuming field values, I learned to verify each metadata field using the project's schema, official EPA documentation, and existing repository conventions.
+
+Running validation scripts, rebuilding generated artifacts, and executing the project's test suite before opening a Pull Request helped ensure the contribution was accepted without requiring any revisions.
