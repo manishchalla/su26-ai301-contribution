@@ -200,4 +200,3 @@ To be documented after implementation.
 - Repository README
 - GitHub Issue #255
 - Project source code
-- CONTRIBUTING.md (if applicable)
