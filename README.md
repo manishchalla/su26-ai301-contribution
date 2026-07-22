@@ -380,16 +380,66 @@ The implementation was successfully completed and is ready for the Pull Request 
 
 ---
 
-# Phase IV — Pull Request Review and Reflection
+---
 
-> **This phase will be completed after the Pull Request review process.**
+# Phase IV — Pull Request Review and Completion
 
-The following sections will be documented after the Pull Request has been reviewed by the project maintainers:
+## Pull Request
 
-- Pull Request
-- Maintainer Feedback
-- Code Review
-- Final Outcome
-- Technical Skills Demonstrated
-- Lessons Learned
-- Reflection
+**PR Link:**  
+https://github.com/tsouth89/toolport/pull/403
+
+---
+
+## PR Description
+
+**What does this PR do?**
+
+This pull request adds support for parsing Continue YAML snippets that use the `mcpServers` sequence format while preserving environment variable values during the import process. A regression test was also added to verify the new parsing behavior.
+
+**Why was this PR needed?**
+
+Issue #375 reported that environment variable values from Continue YAML snippets were not being preserved correctly during parsing. After investigating the existing parser, I extended the current implementation to support the missing YAML structure while keeping the existing parser behavior unchanged.
+
+**Relevant Issue**
+
+Closes **#375**
+
+---
+
+## Maintainer Review
+
+The project maintainer reviewed the contribution and accepted the implementation.
+
+GitHub automatically closed the issue with the following message:
+
+> **"Preserve env values when parsing Continue YAML snippets #375 closed as completed in #403."**
+
+This confirmed that the submitted Pull Request successfully resolved the reported issue.
+
+---
+
+## Status
+
+**Completed**
+
+- ✅ Pull Request Submitted
+- ✅ Issue Closed
+- ✅ Contribution Accepted
+
+---
+
+## Learnings & Reflection
+
+This contribution helped me gain practical experience working with an existing open-source codebase rather than building a project from scratch.
+
+Some of the key things I learned include:
+
+- Understanding an unfamiliar codebase before making changes.
+- Investigating an issue and identifying its root cause.
+- Following an existing coding style instead of introducing a new approach.
+- Writing regression tests to prevent similar issues in the future.
+- Using Git and GitHub to contribute through feature branches and Pull Requests.
+- Collaborating with project maintainers through the open-source contribution process.
+
+Overall, this project strengthened my confidence in reading production code, debugging existing functionality, and contributing meaningful improvements to an active open-source project.
